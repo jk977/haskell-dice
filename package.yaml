@@ -15,7 +15,7 @@ synopsis:            Dice problem solver.
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on Github at <https://github.com/githubuser/dice#readme>
+description:         Please see the README on Github at <https://github.com/jk977/haskell-dice#readme>
 
 dependencies:
 - base >= 4.7 && < 5
