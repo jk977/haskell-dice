@@ -3,10 +3,8 @@ module Main where
 import Dice
 import Point
 import DiceMap
-import Control.Monad
 
-initDie = Die 3 4 1 6 2 5
-initPoint = Point 1 1
+import Control.Monad
 
 -- TODO memoize results in DiceMap
 getScore :: Point -> Int
