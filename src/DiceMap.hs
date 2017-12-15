@@ -6,12 +6,19 @@ import Point
 import Data.Map (Map)
 import qualified Data.Map as Map
 
-type DiceKey = (Point,Die)
-type DiceMap = Map DiceKey Int
+type DiceKey = (Die,Point)
+type DiceValue = (Die,Int)
+type DiceMap = Map DiceKey DiceValue
+
+initKey :: DiceKey
+initKey = (initDie,initPoint)
 
 blankDiceMap :: DiceMap
 blankDiceMap = Map.fromList states where
-    points = [Point x y | (x,y) <- zip (cycle [1..60]) $ concatMap (replicate 60) [1..60]]
+    x = cycle [1..60]
+    y = concatMap (replicate 60) [1..60]
+    points = uncurry Point <$> (zip x y)
     allPoints = concatMap (replicate $ length possibleDice) points
-    possibilities = zip allPoints $ cycle possibleDice
-    states = zip possibilities $ repeat (-1)
+    possibilities = zip (cycle possibleDice) allPoints
+    states = zip possibilities $ repeat (initDie, -1)
+
