@@ -5,27 +5,40 @@ import Point
 import DiceMap
 
 import Control.Monad
-import Data.IORef
+import Control.Monad.ST
+import Data.Maybe
+import Data.STRef
 import qualified Data.Map as Map
 
--- TODO memoize results of getScore in DiceMap
-memoize :: IORef DiceMap -> DiceKey -> DiceValue -> IO ()
-memoize cRef k v = modifyIORef cRef $ \m -> Map.insert k v m
+memoize :: STRef s DiceMap -> DiceKey -> DiceValue -> ST s ()
+memoize cRef k v = modifySTRef cRef $ \m -> Map.insert k v m
 
-getScore :: Point -> Int
-getScore dest = snd $ getScore' initPoint initDie where
-    getScore' :: Point -> Die -> (Die,Int)
-    getScore' point die =
-        if point <= dest then
-            let right = getScore' (shiftRight point) (rollRight die) 
-                down = getScore' (shiftDown point) (rollDown die) 
-                (finalDie, maxScore) = if (snd right) > (snd down) then right else down
-            in (finalDie, top die + maxScore)
-        else (die, 0)
+getScore' :: STRef s DiceMap -> Die -> Point -> Point -> ST s (Die, Int)
+getScore' cRef die current dest
+    | current <= dest = do
+        cache <- readSTRef cRef
+        let currentKey = (die, current)
+        let result = Map.lookup currentKey cache
+
+        if isNothing result then do
+            right <- getScore' cRef (rollRight die) (shiftRight current) dest
+            down <- getScore' cRef (rollDown die) (shiftDown current) dest
+            let (finalDie, childMax) = if (snd right) > (snd down) then right else down
+            let maxScore = childMax + top die
+            memoize cRef currentKey (finalDie, maxScore)
+            return (finalDie, maxScore)
+        else
+            return $ fromJust result
+    | otherwise = return (die, 0)
+
+getScore :: Point -> ST s Int
+getScore dest = do
+    cRef <- newSTRef blankDiceMap
+    snd <$> (getScore' cRef initDie initPoint dest)
 
 main :: IO ()
 main = readLn >>= \count -> do
-    cache <- newIORef blankDiceMap
     forM_ [1..count] $ \_ -> do
         [n,m] <- (map read . words) <$> getLine :: IO [Int]
-        print $ getScore $ Point m n
+        print $ runST $ getScore $ Point m n
+
