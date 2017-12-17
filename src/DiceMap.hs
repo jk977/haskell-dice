@@ -6,8 +6,8 @@ import Point
 import Data.Map (Map)
 import qualified Data.Map as Map
 
-type DiceKey = (Die,Point)
-type DiceValue = (Die,Int)
+type DiceKey = (Die,Point,Point)    -- orientation, start point, end point
+type DiceValue = (Die,Int)          -- orientation and score
 type DiceMap = Map DiceKey DiceValue
 
 blankDiceMap :: DiceMap

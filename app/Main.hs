@@ -5,19 +5,20 @@ import Point
 import DiceMap
 
 import Control.Monad
-import Control.Monad.ST
 import Data.Maybe
-import Data.STRef
+import Data.IORef
 import qualified Data.Map as Map
 
-memoize :: STRef s DiceMap -> DiceKey -> DiceValue -> ST s ()
-memoize cRef k v = modifySTRef cRef $ \m -> Map.insert k v m
+type MapRef = IORef DiceMap
 
-getScore' :: STRef s DiceMap -> Die -> Point -> Point -> ST s (Die, Int)
+memoize :: MapRef -> DiceKey -> DiceValue -> IO ()
+memoize cRef k v = modifyIORef cRef $ \m -> Map.insert k v m
+
+getScore' :: MapRef -> Die -> Point -> Point -> IO DiceValue
 getScore' cRef die current dest
     | current <= dest = do
-        cache <- readSTRef cRef
-        let currentKey = (die, current)
+        cache <- readIORef cRef
+        let currentKey = (die, current, dest)
         let result = Map.lookup currentKey cache
 
         if isNothing result then do
@@ -31,14 +32,14 @@ getScore' cRef die current dest
             return $ fromJust result
     | otherwise = return (die, 0)
 
-getScore :: Point -> ST s Int
-getScore dest = do
-    cRef <- newSTRef blankDiceMap
-    snd <$> (getScore' cRef initDie initPoint dest)
+getScore :: MapRef -> Point -> IO Int
+getScore cRef dest = snd <$> (getScore' cRef initDie initPoint dest)
 
 main :: IO ()
 main = readLn >>= \count -> do
+    cRef <- newIORef blankDiceMap
     forM_ [1..count] $ \_ -> do
         [n,m] <- (map read . words) <$> getLine :: IO [Int]
-        print $ runST $ getScore $ Point m n
+        result <- getScore cRef $ Point m n
+        print result
 
