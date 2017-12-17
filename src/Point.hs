@@ -10,9 +10,6 @@ instance Ord Point where
 
 initPoint = Point 1 1
 
-pointFromList :: [Int] -> Point
-pointFromList [x,y] = Point x y
-
 shiftRight :: Point -> Point
 shiftRight (Point x y) = Point (x+1) y
 
