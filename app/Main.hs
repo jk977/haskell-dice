@@ -25,9 +25,9 @@ getScore' cRef die current dest
             right <- getScore' cRef (rollRight die) (shiftRight current) dest
             down <- getScore' cRef (rollDown die) (shiftDown current) dest
             let (finalDie, childMax) = if (snd right) > (snd down) then right else down
-            let maxScore = childMax + top die
-            memoize cRef currentKey (finalDie, maxScore)
-            return (finalDie, maxScore)
+            let value = (finalDie, childMax + top die)
+            memoize cRef currentKey value
+            return value
         else
             return $ fromJust result
     | otherwise = return (die, 0)
