@@ -19,13 +19,13 @@ getScore' cRef die current dest
     | current <= dest = do
         cache <- readIORef cRef
         let key = (die, xDelta dest current, yDelta dest current)
-        let result = Map.lookup key cache
+            result = Map.lookup key cache
 
         if isNothing result then do
             right <- getScore' cRef (rollRight die) (shiftRight current) dest
             down <- getScore' cRef (rollDown die) (shiftDown current) dest
             let (finalDie, childMax) = if (snd right) > (snd down) then right else down
-            let value = (finalDie, childMax + top die)
+                value = (finalDie, childMax + top die)
             memoize cRef key value
             return value
         else
