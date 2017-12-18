@@ -1,4 +1,16 @@
+# haskell stack
 .stack-work/
 dice.cabal
+
+# temporary files
 *~
-*.swp
+*.tmp
+*.sw[a-z]
+
+# sample IO
+test/*.in
+test/*.out
+
+# scripts for hackerrank submission
+hr/
+/build

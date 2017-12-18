@@ -12,21 +12,21 @@ import qualified Data.Map as Map
 type MapRef = IORef DiceMap
 
 memoize :: MapRef -> DiceKey -> DiceValue -> IO ()
-memoize cRef k v = modifyIORef cRef $ \m -> Map.insert k v m
+memoize cRef k v = modifyIORef' cRef $ \m -> Map.insert k v m
 
 getScore' :: MapRef -> Die -> Point -> Point -> IO DiceValue
 getScore' cRef die current dest
     | current <= dest = do
         cache <- readIORef cRef
-        let currentKey = (die, current, dest)
-        let result = Map.lookup currentKey cache
+        let key = (die, xDelta dest current, yDelta dest current)
+        let result = Map.lookup key cache
 
         if isNothing result then do
             right <- getScore' cRef (rollRight die) (shiftRight current) dest
             down <- getScore' cRef (rollDown die) (shiftDown current) dest
             let (finalDie, childMax) = if (snd right) > (snd down) then right else down
             let value = (finalDie, childMax + top die)
-            memoize cRef currentKey value
+            memoize cRef key value
             return value
         else
             return $ fromJust result
@@ -38,8 +38,8 @@ getScore cRef dest = snd <$> (getScore' cRef initDie initPoint dest)
 main :: IO ()
 main = readLn >>= \count -> do
     cRef <- newIORef blankDiceMap
-    forM_ [1..count] $ \_ -> do
+    forM_ [1..count] $ \x -> do
         [n,m] <- (map read . words) <$> getLine :: IO [Int]
         result <- getScore cRef $ Point m n
-        print result
+        putStrLn $ (show x) ++ " " ++ (show result)
 
