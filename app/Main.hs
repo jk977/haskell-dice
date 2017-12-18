@@ -38,8 +38,8 @@ getScore cRef dest = snd <$> (getScore' cRef initDie initPoint dest)
 main :: IO ()
 main = readLn >>= \count -> do
     cRef <- newIORef blankDiceMap
-    forM_ [1..count] $ \x -> do
+    forM_ [1..count] $ \_ -> do
         [n,m] <- (map read . words) <$> getLine :: IO [Int]
         result <- getScore cRef $ Point m n
-        putStrLn $ (show x) ++ " " ++ (show result)
+        print result
 
