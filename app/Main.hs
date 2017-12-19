@@ -26,6 +26,7 @@ getScore' cRef die current dest
             down <- getScore' cRef (rollDown die) (shiftDown current) dest
             let (finalDie, childMax) = if (snd right) > (snd down) then right else down
                 value = (finalDie, childMax + top die)
+
             memoize cRef key value
             return value
         else
