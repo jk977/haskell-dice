@@ -11,5 +11,5 @@ type DiceValue = (Die,Int)          -- orientation and score
 type DiceMap = Map DiceKey DiceValue
 
 blankDiceMap :: DiceMap
-blankDiceMap = Map.fromList []
+blankDiceMap = Map.empty
 
